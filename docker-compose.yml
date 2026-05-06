@@ -1,0 +1,74 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+
+  classifier:
+    build: ./classifier
+    ports:
+      - "8001:8001"
+    environment:
+      OLLAMA_BASE_URL: http://ollama:11434
+      OLLAMA_MODEL: mistral
+    depends_on:
+      - ollama
+
+  worker-general:
+    build:
+      context: ./workers
+      args:
+        WORKER_TYPE: general
+        WORKER_PORT: "9001"
+    ports:
+      - "9001:9001"
+
+  worker-high-compute:
+    build:
+      context: ./workers
+      args:
+        WORKER_TYPE: high-compute
+        WORKER_PORT: "9002"
+    ports:
+      - "9002:9002"
+
+  worker-fast-path:
+    build:
+      context: ./workers
+      args:
+        WORKER_TYPE: fast-path
+        WORKER_PORT: "9003"
+    ports:
+      - "9003:9003"
+
+  proxy:
+    build: ./proxy
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+    environment:
+      CLASSIFIER_URL: http://classifier:8001
+      GENERAL_POOL: http://worker-general:9001
+      HIGH_COMPUTE_POOL: http://worker-high-compute:9002
+      FAST_PATH_POOL: http://worker-fast-path:9003
+      PROXY_PORT: "8080"
+      METRICS_PORT: "9090"
+    depends_on:
+      - classifier
+      - worker-general
+      - worker-high-compute
+      - worker-fast-path
+
+  dashboard:
+    build: ./dashboard
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_PROXY_URL: http://localhost:8080
+    depends_on:
+      - proxy
+
+volumes:
+  ollama_data:

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: worker-fast-path-svc
+  namespace: semantic-lb
+spec:
+  selector:
+    app: worker-fast-path
+  ports:
+    - port: 9003
+      targetPort: 9003

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: slb-config
+  namespace: semantic-lb
+data:
+  CLASSIFIER_URL: "http://classifier-svc:8001"
+  OLLAMA_BASE_URL: "http://ollama-svc:11434"
+  OLLAMA_MODEL: "mistral"
+  GENERAL_POOL: "http://worker-general-svc:9001"
+  HIGH_COMPUTE_POOL: "http://worker-high-compute-svc:9002"
+  FAST_PATH_POOL: "http://worker-fast-path-svc:9003"
+  PROXY_PORT: "8080"
+  METRICS_PORT: "9090"

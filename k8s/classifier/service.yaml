@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: classifier-svc
+  namespace: semantic-lb
+spec:
+  selector:
+    app: classifier
+  ports:
+    - port: 8001
+      targetPort: 8001

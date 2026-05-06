@@ -1,0 +1,13 @@
+vendor/
+__pycache__/
+*.pyc
+*.pyo
+.env
+node_modules/
+.next/
+dist/
+*.exe
+*.test
+*.out
+ollama_data/
+.DS_Store
