@@ -21,9 +21,9 @@ export interface MetricsSnapshot {
 }
 
 export const LABEL_COLORS: Record<RouteLabel, string> = {
-  general: "#3b82f6",
-  "high-compute": "#f59e0b",
-  "fast-path": "#10b981",
+  general: "#8aa6d9",
+  "high-compute": "#d6a85a",
+  "fast-path": "#6fbf91",
 };
 
 export const LABEL_DISPLAY: Record<RouteLabel, string> = {

@@ -5,12 +5,13 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        general: "#3b82f6",
-        "high-compute": "#f59e0b",
-        "fast-path": "#10b981",
+        general: "#8aa6d9",
+        "high-compute": "#d6a85a",
+        "fast-path": "#6fbf91",
       },
       fontFamily: {
-        mono: ["var(--font-geist-mono)", "monospace"],
+        sans: ["var(--font-outfit)", "system-ui", "sans-serif"],
+        mono: ["var(--font-jetbrains)", "ui-monospace", "monospace"],
       },
     },
   },

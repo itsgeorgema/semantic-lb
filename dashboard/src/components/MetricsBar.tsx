@@ -20,6 +20,8 @@ export function MetricsBar({ metrics }: Props) {
   const [history, setHistory] = useState<DataPoint[]>([]);
   const tickRef = useRef(0);
 
+  const totalRps = metrics.reduce((sum, m) => sum + m.rps, 0);
+
   useEffect(() => {
     tickRef.current += 1;
     const point: DataPoint = {
@@ -32,31 +34,80 @@ export function MetricsBar({ metrics }: Props) {
   }, [metrics]);
 
   return (
-    <div className="rounded-xl border border-gray-800 bg-gray-900 p-4">
-      <h3 className="text-xs font-mono text-gray-500 uppercase tracking-wider mb-3">Requests / Second</h3>
-      <ResponsiveContainer width="100%" height={100}>
-        <AreaChart data={history}>
-          <XAxis dataKey="t" hide />
-          <YAxis hide />
-          <Tooltip
-            contentStyle={{ background: "#111827", border: "1px solid #374151", fontSize: 11 }}
-            formatter={(v: number, name: string) => [`${v.toFixed(2)} rps`, LABEL_DISPLAY[name as RouteLabel]]}
-            labelFormatter={() => ""}
-          />
-          {LABELS.map((label) => (
-            <Area
-              key={label}
-              type="monotone"
-              dataKey={label}
-              stroke={LABEL_COLORS[label]}
-              fill={LABEL_COLORS[label] + "22"}
-              strokeWidth={1.5}
-              dot={false}
-              isAnimationActive={false}
-            />
+    <div data-scroll data-scroll-class="is-inview" className="scroll-reveal panel rounded-[1.4rem] p-4 sm:p-5">
+
+      {/* Header */}
+      <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h3 className="font-mono text-[11px] uppercase tracking-[0.22em]" style={{ color: "var(--text-muted)" }}>
+            rolling 5s window
+          </h3>
+          <div className="flex items-baseline gap-1.5 mt-1">
+            <span className="tabular font-mono text-3xl font-semibold" style={{ color: "var(--text-primary)" }}>
+              {totalRps.toFixed(1)}
+            </span>
+            <span className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>req / s</span>
+          </div>
+        </div>
+
+        {/* Legend */}
+        <div className="flex flex-wrap gap-2 pt-1">
+          {LABELS.map((l) => (
+            <div key={l} className="flex items-center gap-1.5 rounded-lg px-2.5 py-1" style={{ background: "rgba(255,255,255,0.025)", border: "1px solid var(--border)" }}>
+              <span className="w-2 h-2 rounded-full flex-shrink-0"
+                    style={{ background: LABEL_COLORS[l] }} />
+              <span className="text-[11px] font-mono" style={{ color: "var(--text-secondary)" }}>
+                {LABEL_DISPLAY[l]}
+              </span>
+            </div>
           ))}
-        </AreaChart>
-      </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Chart */}
+      {history.length > 1 ? (
+        <ResponsiveContainer width="100%" height={88}>
+          <AreaChart data={history} margin={{ top: 2, right: 0, bottom: 0, left: 0 }}>
+            <XAxis dataKey="t" hide />
+            <YAxis hide />
+            <Tooltip
+              contentStyle={{
+                background: "#18181b",
+                border: "1px solid rgba(230,218,194,0.13)",
+                borderRadius: "10px",
+                fontSize: 11,
+                fontFamily: "JetBrains Mono, monospace",
+                padding: "8px 12px",
+                color: "#b9b1a1",
+              }}
+              itemStyle={{ color: "#b9b1a1" }}
+              formatter={(v: number, name: string) => [
+                `${v.toFixed(2)} rps`,
+                LABEL_DISPLAY[name as RouteLabel],
+              ]}
+              labelFormatter={() => ""}
+            />
+            {LABELS.map((l) => (
+              <Area
+                key={l}
+                type="monotone"
+                dataKey={l}
+                stroke={LABEL_COLORS[l]}
+                fill={LABEL_COLORS[l] + "16"}
+                strokeWidth={1.5}
+                dot={false}
+                isAnimationActive={false}
+              />
+            ))}
+          </AreaChart>
+        </ResponsiveContainer>
+      ) : (
+        <div className="flex h-[88px] items-center justify-center rounded-xl" style={{ background: "rgba(255,255,255,0.018)", border: "1px dashed var(--border-mid)" }}>
+          <p className="font-mono text-xs" style={{ color: "var(--text-muted)" }}>
+            collecting a baseline
+          </p>
+        </div>
+      )}
     </div>
   );
 }
