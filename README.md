@@ -30,7 +30,7 @@ The classifier maintains an in-memory LRU cache keyed on request payload bytes s
 
 ```bash
 cp .env.example .env
-docker compose up --build
+source scripts/dev-up.sh
 ```
 
 Pull the Mistral model into Ollama on first run:
@@ -52,10 +52,21 @@ This builds images into the Minikube Docker daemon and applies all manifests und
 ## Development
 
 ```bash
-./scripts/dev-up.sh
+source scripts/dev-up.sh
 ```
 
-Starts all services locally with live-reload where supported.
+This will:
+1. Create a `.venv` in the repo root (if one doesn't exist) and install the classifier's Python dependencies into it.
+2. Activate the venv in your current shell (only when the script is sourced — use `source`, not `bash`).
+3. Build all Docker images and start the full stack.
+
+If you want to activate the venv independently later:
+
+```bash
+source .venv/bin/activate
+```
+
+> **Note:** Running `bash scripts/dev-up.sh` instead of `source` will still create the venv and build/start the stack, but the venv will not be active in your terminal afterward.
 
 ## Load Testing
 

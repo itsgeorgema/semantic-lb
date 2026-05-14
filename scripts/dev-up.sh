@@ -1,11 +1,38 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# BASH_SOURCE is bash-only; fall back to $0 so this works when sourced in zsh too
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")/.." && pwd)"
+VENV_DIR="$REPO_ROOT/.venv"
+
+# --- Python venv setup ---
+echo "==> Setting up Python virtual environment..."
+if [ ! -d "$VENV_DIR" ]; then
+  python3 -m venv "$VENV_DIR"
+  echo "    Created .venv"
+fi
+
+"$VENV_DIR/bin/pip" install --quiet --upgrade pip
+"$VENV_DIR/bin/pip" install --quiet -r "$REPO_ROOT/classifier/requirements.txt"
+echo "    Python deps installed into .venv"
+
+# Activate the venv in the current shell if this script is being sourced.
+# If run directly (bash scripts/dev-up.sh), print a reminder instead.
+if (return 0 2>/dev/null); then
+  # shellcheck source=/dev/null
+  source "$VENV_DIR/bin/activate"
+  echo "    .venv activated in current shell"
+else
+  echo "    NOTE: run 'source .venv/bin/activate' to activate the venv in your shell"
+fi
+
+# --- Docker build + start ---
+echo ""
 echo "==> Building images..."
-docker compose build
+docker compose -f "$REPO_ROOT/docker-compose.yml" build
 
 echo "==> Starting stack..."
-docker compose up -d
+docker compose -f "$REPO_ROOT/docker-compose.yml" up -d
 
 echo "==> Waiting for classifier health..."
 for i in $(seq 1 30); do
